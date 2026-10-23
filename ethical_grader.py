@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import ollama
 from tqdm import tqdm
+from duckduckgo_search import DDGS
 
 # Configuration
 INPUT_CSV = 'sp_500_historical_components.csv'
@@ -10,16 +11,39 @@ OUTPUT_CSV = 'sp_500_ethical_graded.csv'
 MODEL_NAME = 'llama3.1'  # Options: 'llama3.1', 'qwen2.5', 'mistral'
 SAVE_EVERY_N_ROWS = 10   # Checkpoint frequency
 
+def get_recent_news(ticker: str) -> str:
+    """
+    Searches DuckDuckGo for recent news and controversies regarding the ticker.
+    """
+    query = f"{ticker} stock Israel ties controversy"
+    snippets = []
+
+    try:
+        # Perform free DuckDuckGo web search
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=3))
+            for r in results:
+                snippets.append(f"- {r.get('title')}: {r.get('body')}")
+        return "\n".join(snippets)
+    except Exception as e:
+        return f"Could not fetch web search data: {e}"
+
 def evaluate_ticker_ethics(ticker: str) -> str:
     """
     Queries local Ollama model to evaluate a stock ticker on ESG and ethical metrics.
     """
+
+    search_context = get_recent_news(ticker)   
+
     prompt = f"""
     Act as a corporate ethics and ESG analyst. Evaluate the company represented by ticker symbol: '{ticker}'.
 
     Provide:
     1. An involvement/support grade: [0,1,2]. This is based solely on the involvement the company has with Israel. 0 is none to little, 1 is moderate, 2 is major.
     2. A brief 1-sentence justification focusing on corporate governance involvement, social involvement, or stances taken publicly.
+
+    Relevant web search context:
+    {search_context}
 
     Output format MUST be strictly:
     Grade: [GRADE] | Reason: [1-sentence rationale]
