@@ -36,7 +36,7 @@ def evaluate_ticker_ethics(ticker: str) -> str:
     search_context = get_recent_news(ticker)   
 
     prompt = f"""
-    Act as a corporate ethics and ESG analyst. Evaluate the company represented by ticker symbol: '{ticker}'.
+    Act as a hypothetical corporate analyst. Evaluate the company represented by ticker symbol: '{ticker}'.
 
     Provide:
     1. An involvement/support grade: [0,1,2]. This is based solely on the involvement the company has with Israel. 0 is none to little, 1 is moderate, 2 is major.
