@@ -1,0 +1,4 @@
+.DS_Store
+.venv
+~$ticker_grades.xlsx
+~$ticker_grades_cache.xlsx
